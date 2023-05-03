@@ -1,9 +1,13 @@
 <?php
 
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
+use App\Http\Controllers\PublicacionController;
+use App\Http\Controllers\ComentarioController;
+use App\Http\Controllers\InicioController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\Auth\LoginController;
 
+use Inertia\Inertia;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -15,24 +19,39 @@ use Inertia\Inertia;
 |
 */
 
-Route::get('auth/{provider}', 'Auth\SocialAuthController@redirectToProvider')->name('social.auth');
-Route::get('auth/{provider}/callback', 'Auth\SocialAuthController@handleProviderCallback');
+Route::get('/', [InicioController::class, 'index'])->name('index');
 
-Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
-});
+//Route::get('login/facebook', [LoginController::class,'redirectToFacebook'])->name('login.facebook');
+//Route::get('login/facebook', 'Auth\LoginController@redirectToFacebook')->name('login.facebook');
+//Route::get('login/facebook/callback', [LoginController::class,'handleFacebookCallback']);
+//Route::get('login/facebook/callback', 'Auth\LoginController@handleFacebookCallback');
 
-Route::middleware([
-    'auth:sanctum',
-    config('jetstream.auth_session'),
-    'verified',
-])->group(function () {
-    Route::get('/dashboard', function () {
-        return Inertia::render('Dashboard');
-    })->name('dashboard');
-});
+Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
+Route::post('login.attempt', [LoginController::class, 'login'])->name('login.attempt');
+Route::post('logout', [LoginController::class, 'logout'])->name('logout');
+
+Route::get('/userd', [UserController::class, 'getAuthenticatedUser'])->name(
+    'userd'
+);
+
+Route::get('/publicaciones', [PublicacionController::class, 'index'])->name(
+    'publicaciones.index'
+);
+
+Route::get('/obtenerpublicaciones', [
+    PublicacionController::class,
+    'obtenerpublicaciones',
+])->name('obtenerpublicaciones');
+
+Route::resource('comentarios', ComentarioController::class)->only([
+    'store',
+    'update',
+    'destroy',
+]);
+
+Route::post('/comentarios/{comentario}/like', [
+    ComentarioController::class,
+    'like',
+])->name('comentarios.like');
+
+Auth::routes();

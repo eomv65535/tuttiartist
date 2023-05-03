@@ -3,7 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Inertia\Inertia;
+use Illuminate\Support\Facades\Schema;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -24,19 +24,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        Inertia::share([
-            "flash" => function () {
-                return [
-                    "status" => session("status"),
-                    "success" => session("success"),
-                    "error" => session("error"),
-                ];
-            },
-            "request" => function () {
-                return [
-                    "token" => request()->route("token"),
-                ];
-            }
-        ]);
+        Schema::defaultStringLength(191);
+
     }
 }
